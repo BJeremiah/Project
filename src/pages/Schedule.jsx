@@ -1,65 +1,94 @@
 import { useState, useEffect } from "react";
+import img4 from "../assets/img4.png"; // schedule icon
+import img8 from "../assets/img8.jpg"; // delete icon
 
 export default function Schedule() {
-  const [activities, setActivities] = useState(() => {
-    const saved = localStorage.getItem("activities");
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [name, setName] = useState("");
+  const [schedules, setSchedules] = useState([]);
+  const [task, setTask] = useState("");
   const [time, setTime] = useState("");
 
+  // Load schedules from localStorage
   useEffect(() => {
-    localStorage.setItem("activities", JSON.stringify(activities));
-  }, [activities]);
+    const stored = JSON.parse(localStorage.getItem("schedules")) || [];
+    setSchedules(stored);
+  }, []);
 
-  const addActivity = (e) => {
-    e.preventDefault();
-    if (!name || !time) return;
-    setActivities([...activities, { id: Date.now(), name, time }]);
-    setName("");
+  // Save schedules to localStorage
+  useEffect(() => {
+    localStorage.setItem("schedules", JSON.stringify(schedules));
+  }, [schedules]);
+
+  const addSchedule = () => {
+    if (!task || !time) return;
+
+    const newSchedule = {
+      id: Date.now(),
+      task,
+      time,
+    };
+
+    setSchedules([...schedules, newSchedule]);
+    setTask("");
     setTime("");
   };
 
-  return (
-    <div className="p-4 min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-6">Schedule</h1>
+  const removeSchedule = (id) => {
+    setSchedules(schedules.filter((s) => s.id !== id));
+  };
 
-      <form
-        className="flex flex-col md:flex-row gap-2 mb-6"
-        onSubmit={addActivity}
-      >
+  return (
+    <div className="p-6 max-w-lg mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Schedule</h1>
+
+      {/* Add Schedule */}
+      <div className="flex gap-2 mb-4">
         <input
-          type="text"
-          placeholder="Activity"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="p-2 rounded shadow flex-1"
+          className="border p-2 flex-1 rounded"
+          placeholder="Task"
+          value={task}
+          onChange={(e) => setTask(e.target.value)}
         />
+
+        {/* ✅ TIME PICKER (RESTORED FEATURE) */}
         <input
           type="time"
+          className="border p-2 w-32 rounded"
           value={time}
           onChange={(e) => setTime(e.target.value)}
-          className="p-2 rounded shadow"
         />
+
         <button
-          type="submit"
-          className="p-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
+          onClick={addSchedule}
+          className="bg-blue-600 text-white px-4 rounded"
         >
           Add
         </button>
-      </form>
-
-      <div className="grid gap-4">
-        {activities.map((a) => (
-          <div
-            key={a.id}
-            className="p-4 rounded shadow bg-white hover:shadow-lg hover:scale-105 transition-transform duration-300 flex justify-between"
-          >
-            <h2 className="font-bold">{a.name}</h2>
-            <p className="text-gray-600">{a.time}</p>
-          </div>
-        ))}
       </div>
+
+      {/* Schedule List */}
+      <ul>
+        {schedules.map((s) => (
+          <li
+            key={s.id}
+            className="flex justify-between items-center border-b py-2"
+          >
+            <div className="flex items-center gap-2">
+              <img src={img4} className="w-6 h-6" />
+              <span>
+                {s.time} — {s.task}
+              </span>
+            </div>
+
+            <button
+              onClick={() => removeSchedule(s.id)}
+              className="bg-red-600 text-white px-2 py-1 rounded flex items-center gap-1"
+            >
+              <img src={img8} className="w-4 h-4" />
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
