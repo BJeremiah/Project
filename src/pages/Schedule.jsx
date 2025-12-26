@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import img4 from "../assets/img4.png"; // schedule icon
+import img4 from "../assets/img4.jpg"; // schedule icon
 import img8 from "../assets/img8.jpg"; // delete icon
 
 export default function Schedule() {
